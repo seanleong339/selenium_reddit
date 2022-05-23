@@ -1,3 +1,8 @@
+import time, urllib.request
+import requests
+import os
+import json
+import praw
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
@@ -7,10 +12,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC 
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
-import time, urllib.request
-import requests
-import os
-import json
+from praw.models import MoreComments
 
 WINDOW_SIZE = "1920,1080"
 
@@ -106,6 +108,34 @@ for link in links:
     if external is not None:
     	externallink = external.get('href')
     	fulltext['External link'] = externallink
+    
+    #Get top comments
+    reddit = praw.Reddit(
+    client_id="1aMqUjUXh1_OU_iV2lTBmQ",
+    client_secret="YmB7r_gGFj1zX5XMvGo4bS1aSeOiXw",
+    user_agent="linux:tryingitout:1 (by /u/georgefoo782)",
+    )
+
+    url = link
+    submission = reddit.submission(url=url)
+    post_time = submission.created_utc
+    fulltext["Submission_time"] = post_time
+    
+    fulltext['Comments'] = []
+
+    for top_level_comment in submission.comments:
+        if isinstance(top_level_comment, MoreComments):
+            continue
+        comment = top_level_comment
+        author = top_level_comment.author
+        comment_time = comment.created_utc
+        if author is not None:
+            name = author.name
+        else:
+            name = 'Hidden'
+        if comment is not None:
+            fulltext['Comments'].append({"Commenter":name,"Comment":top_level_comment.body,"Time":comment_time})
+        
     	
     #Save text to JSON file 
     with open(os.path.join(download_path, 'text.json'), 'w') as file:
