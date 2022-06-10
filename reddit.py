@@ -27,9 +27,15 @@ driver = webdriver.Chrome(
 
 driver.get("https://www.reddit.com/r/singapore")  # input reddit page or subreddit
 
+reddit = praw.Reddit(
+client_id="1aMqUjUXh1_OU_iV2lTBmQ",
+client_secret="YmB7r_gGFj1zX5XMvGo4bS1aSeOiXw",
+user_agent="linux:tryingitout:1 (by /u/georgefoo782)",
+)
+
 #scroll down
 scrolldown=driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var scrolldown=document.body.scrollHeight;return scrolldown;")
-for x in range(1):
+for x in range(30):
 	last_count = scrolldown
 	time.sleep(3)
 	scrolldown = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var scrolldown=document.body.scrollHeight;return scrolldown;")
@@ -47,13 +53,9 @@ for article in articles:
 	
 	
 print(len(links))
+print(links)
 
-reddit = praw.Reddit(
-client_id="1aMqUjUXh1_OU_iV2lTBmQ",
-client_secret="YmB7r_gGFj1zX5XMvGo4bS1aSeOiXw",
-user_agent="linux:tryingitout:1 (by /u/georgefoo782)",
-)
-
+"""
 for link in links:
 	time.sleep(5)
 	driver.get(link)
@@ -153,6 +155,6 @@ for link in links:
 	with open(os.path.join(download_path, 'text.json'), 'w') as file:
 		json.dump(fulltext, file, ensure_ascii=False, indent=4, default=str)
 		
-	
+"""	
 driver.close()
 		
