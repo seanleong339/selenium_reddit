@@ -1,5 +1,5 @@
 import time, urllib.request
-import requests
+import re
 import os
 import json
 import praw
@@ -51,11 +51,12 @@ links = []
 for article in articles:
 	links.append('http://reddit.com'+ article.find("a", {"data-click-id": "body"}).get("href"))
 	
-	
+numposts = len(links)	
 print(len(links))
 print(links)
 
-"""
+tic = time.perf_counter()
+
 for link in links:
 	time.sleep(5)
 	driver.get(link)
@@ -72,10 +73,11 @@ for link in links:
 	download_path_page = 'downloads/' + subreddit
 
 	# create folder
-	title = soup.find("h1").get_text().replace('/', '').replace(' ', '-')
-	if len(title) > 20:
-		title = title[0:20]
-	download_path = download_path_page + "/" + title
+	title = soup.find("h1").get_text()  #.replace('/', '').replace(' ', '-').replace("'","").replace('"','').replace(':','').replace('\\','')
+	filetitle = re.sub(r'\W+', '', title)
+	if len(filetitle) > 20:
+		filetitle = filetitle[0:20]
+	download_path = download_path_page + "/" + filetitle
 	if not os.path.isdir(download_path):
 		os.makedirs(download_path)
 
@@ -96,7 +98,7 @@ for link in links:
 	metacontent = soup.find('meta', {'property':'og:image'})
 	if metacontent is not None:
 		metacontent = metacontent.get('content')
-		urllib.request.urlretrieve(metacontent, '{}/{}.jpg'.format(download_path,title))
+		urllib.request.urlretrieve(metacontent, '{}/{}.jpg'.format(download_path,filetitle))
 	
 	#Extract video if exist
 	try:
@@ -152,9 +154,11 @@ for link in links:
 		
 		
 	#Save text to JSON file 
-	with open(os.path.join(download_path, 'text.json'), 'w') as file:
+	with open(os.path.join(download_path, 'text.json'), 'w',encoding='utf-8') as file:
 		json.dump(fulltext, file, ensure_ascii=False, indent=4, default=str)
-		
-"""	
+
+toc = time.perf_counter()
+print("Downloaded {} posts in {toc - tic:0.4f} seconds".format(numposts))	
+print(numposts)
 driver.close()
 		

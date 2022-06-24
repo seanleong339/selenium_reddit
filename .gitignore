@@ -1,2 +1,6 @@
 downloads/
+pmaw/
 test.py
+*.json
+bulk/
+cle.py
