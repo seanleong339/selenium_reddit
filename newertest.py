@@ -27,21 +27,27 @@ api = PushshiftAPI()
 listid = []
 
 start_epoch=int(dt.datetime(2021,4,26).timestamp()) #yyyy mm dd
-end_epoch = start_epoch - (86400*5)
+end_epoch = start_epoch - (86400*10)
 total = 0
 
 tic = time.perf_counter()
 
-while total < 10000:
+while total < 50000:
 	sample = list(api.search_submissions(before=start_epoch, after=end_epoch,
 								subreddit='singapore',
 								limit=30000
 								))
 	
 	count = len(sample)
-	print(count)
-	start_epoch = int(sample[0]['created_utc'])
-	end_epoch = start_epoch - (86400*5) #subtract by 10 days in seconds
+	print(f'{count} from {dt.datetime.fromtimestamp(start_epoch)} to {dt.datetime.fromtimestamp(end_epoch)}')
+	print(f'starting from {dt.datetime.fromtimestamp(sample[0]["created_utc"])}')
+	if count > 100:
+		start_epoch = int(sample[0]['created_utc'])
+		end_epoch = start_epoch - (86400*10) #subtract by 10 days in seconds
+	else:
+		print(f'{dt.datetime.fromtimestamp(start_epoch)} to {dt.datetime.fromtimestamp(end_epoch)} has < 100 submissions')
+		start_epoch = end_epoch
+		end_epoch = end_epoch - (86400*10)
 
 	total += count
 	listid = listid + sample
